@@ -53,5 +53,13 @@ class CourseModel {
       throw error;
     }
   };
+  async findById(id) {
+    const courses = await prisma.course.findUnique({
+      where: {
+        id: Number(id),
+      },            
+    })
+    return courses;
+  }
 }
 export default new CourseModel();

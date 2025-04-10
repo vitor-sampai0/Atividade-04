@@ -89,5 +89,22 @@ class CourseController {
       res.status(500).json({ error: "Erro ao excluir Curso!" });
     }
   };
+  async getById(req, res) {
+    try {
+      const { id } = req.params;
+
+      const course = await courseModel.findById(id);
+
+      if (!course) {
+        return res.status(404).json({ error: "Curso não encontrado" });
+      }
+
+      res.json(course);
+    } catch (error) {
+      console.error("Erro ao buscar Curso:", error);
+      res.status(500).json({ error: "Erro ao buscar Curso" });
+    }
+  }
+
 }
 export default new CourseController();
