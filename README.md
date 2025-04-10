@@ -1,278 +1,202 @@
-# Aula: Configuração de Projeto Backend com Prisma
+# Gerenciador de Cursos 🎸
 
-## Cabeçalho de Aula
+Este projeto é uma API para gerenciar cursos de música. Ele permite criar, listar, atualizar, buscar e excluir cursos, com suporte a validações e persistência de dados.
 
-**Habilidades Trabalhadas:**
+---
 
-- Desenvolvimento de APIs RESTful com Node.js
-- Integração de ORM (Prisma) com projetos backend
-- Modelagem de dados e persistência
-- Tratamento de erros em aplicações assíncronas
-- Refatoração de código para padrões modernos
+## 🚀 Tecnologias Utilizadas
 
-## Introdução
+- **Node.js**: Ambiente de execução JavaScript.
+- **Express**: Framework para criação de APIs.
+- **Prisma**: ORM para manipulação do banco de dados.
+- **SQLite**: Banco de dados utilizado no desenvolvimento.
+- **Thunder Client**: Ferramenta para testar requisições (opcional).
 
-Nesta aula, vamos transformar um projeto backend que utiliza armazenamento em memória para um que utiliza banco de dados persistente através do Prisma ORM. Esta refatoração é um passo importante para criar aplicações escaláveis e robustas.
+---
 
-## Passo a Passo da Configuração
+## 📦 Instalação e Execução
 
-### 1. Instalando o Prisma
+### Pré-requisitos
+- Node.js (v22.14.0 ou superior)
+- Gerenciador de pacotes `npm` ou `yarn`
 
-Primeiro, instale os pacotes necessários e inicialize o Prisma:
+### Passos para rodar o projeto
 
-```bash
-npm install prisma @prisma/client
-npx prisma init
-```
+1. **Clone o repositório**:
+   ```bash
+   git clone <URL_DO_REPOSITORIO>
+   cd Atividade-04
+   ```
 
-### 2. Configurando o arquivo .env
+2. **Instale as dependências**:
+   ```bash
+   npm install
+   ```
 
-Crie ou modifique o arquivo `.env` na raiz do projeto:
+3. **Configure o banco de dados**:
+   - Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo:
+     ```
+     DATABASE_URL="file:./dev.db"
+     ```
+   - Execute as migrações para criar as tabelas no banco:
+     ```bash
+     npx prisma migrate dev --name init
+     ```
 
-```
-DATABASE_URL="file:./dev.db"
-```
+4. **Inicie o servidor**:
+   ```bash
+   npm start
+   ```
 
-Este é o caminho para o banco SQLite que será usado no desenvolvimento.
+5. **Acesse a API**:
+   O servidor estará disponível em `http://localhost:3000`.
 
-### 3. Criando o arquivo schema.prisma
+---
 
-O Prisma já criou o arquivo `prisma/schema.prisma`. Modifique-o conforme o modelo final:
+## 📖 Endpoints da API
 
-```prisma
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
-}
-
-model Task {
-  id        Int     @id @default(autoincrement())
-  descricao String
-  concluida Boolean @default(false)
-  criadaEm  DateTime @default(now())
-
-  @@map("tasks")
-}
-```
-
-### 4. Criando o cliente Prisma
-
-Crie o arquivo `prisma/client.js`:
-
-```javascript
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
-
-export default prisma;
-```
-
-### 5. Executando a migração inicial
-
-Execute o comando para criar a migração e aplicá-la ao banco de dados:
-
-```bash
-npx prisma migrate dev --name init
-```
-
-### 6. Refatorando o modelo (tarefaModel.js)
-
-Modifique o arquivo `src/models/tarefaModel.js` para usar o Prisma:
-
-```javascript
-import prisma from "../../prisma/client.js";
-
-class TarefaModel {
-  getAll = async () => {
-    return await prisma.task.findMany();
-  };
-
-  create = async (descricao) => {
-    return await prisma.task.create({
-      data: {
-        descricao,
-      },
-    });
-  };
-
-  update = async (id, concluida) => {
-    try {
-      return await prisma.task.update({
-        where: { id },
-        data: {
-          concluida: concluida !== undefined ? concluida : true,
-        },
-      });
-    } catch (error) {
-      // Se a tarefa não for encontrada, o Prisma lançará uma exceção
-      if (error.code === "P2025") {
-        return null;
-      }
-      throw error;
+### 1. **Listar todos os cursos**
+- **Rota**: `GET /courses`
+- **Exemplo de resposta**:
+  ```json
+  [
+    {
+      "id": 1,
+      "title": "Curso de Violão",
+      "instrument": "Violão",
+      "level": "Iniciante",
+      "duration": 12,
+      "price": 499.99,
+      "instructor": "João Silva",
+      "maxStudents": 20,
+      "concluida": false,
+      "criadaEm": "2025-04-10T12:00:00.000Z"
     }
-  };
+  ]
+  ```
 
-  delete = async (id) => {
-    try {
-      await prisma.task.delete({
-        where: { id },
-      });
-      return true;
-    } catch (error) {
-      // Se a tarefa não for encontrada, o Prisma lançará uma exceção
-      if (error.code === "P2025") {
-        return false;
-      }
-      throw error;
-    }
-  };
+---
 
-  getById = async (id) => {
-    return await prisma.task.findUnique({
-      where: { id },
-    });
-  };
-}
+### 2. **Criar um novo curso**
+- **Rota**: `POST /courses`
+- **Body (JSON)**:
+  ```json
+  {
+    "title": "Curso de Violão",
+    "instrument": "Violão",
+    "level": "Iniciante",
+    "duration": 12,
+    "price": 499.99,
+    "instructor": "João Silva",
+    "maxStudents": 20
+  }
+  ```
+- **Exemplo de resposta**:
+  ```json
+  {
+    "id": 1,
+    "title": "Curso de Violão",
+    "instrument": "Violão",
+    "level": "Iniciante",
+    "duration": 12,
+    "price": 499.99,
+    "instructor": "João Silva",
+    "maxStudents": 20,
+    "concluida": false,
+    "criadaEm": "2025-04-10T12:00:00.000Z"
+  }
+  ```
 
-export default new TarefaModel();
-```
+---
 
-### 7. Refatorando o controlador (tarefaController.js)
+### 3. **Buscar um curso por ID**
+- **Rota**: `GET /courses/:id`
+- **Exemplo de resposta**:
+  ```json
+  {
+    "id": 1,
+    "title": "Curso de Violão",
+    "instrument": "Violão",
+    "level": "Iniciante",
+    "duration": 12,
+    "price": 499.99,
+    "instructor": "João Silva",
+    "maxStudents": 20,
+    "concluida": false,
+    "criadaEm": "2025-04-10T12:00:00.000Z"
+  }
+  ```
 
-Modifique o arquivo `src/controllers/tarefaController.js` para trabalhar com operações assíncronas:
+---
 
-```javascript
-import tarefaModel from "../models/tarefaModel.js";
+### 4. **Atualizar um curso**
+- **Rota**: `PUT /courses/:id`
+- **Body (JSON)**:
+  ```json
+  {
+    "title": "Curso de Guitarra",
+    "instrument": "Guitarra",
+    "level": "Avançado",
+    "duration": 16,
+    "price": 699.99,
+    "instructor": "Maria Souza",
+    "maxStudents": 15,
+    "concluida": true
+  }
+  ```
+- **Exemplo de resposta**:
+  ```json
+  {
+    "id": 1,
+    "title": "Curso de Guitarra",
+    "instrument": "Guitarra",
+    "level": "Avançado",
+    "duration": 16,
+    "price": 699.99,
+    "instructor": "Maria Souza",
+    "maxStudents": 15,
+    "concluida": true,
+    "criadaEm": "2025-04-10T12:00:00.000Z"
+  }
+  ```
 
-class TarefaController {
-  getAll = async (req, res) => {
-    try {
-      const tarefas = await tarefaModel.getAll();
-      res.json(tarefas);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ erro: "Erro ao buscar tarefas" });
-    }
-  };
+---
 
-  create = async (req, res) => {
-    const { descricao } = req.body;
-    try {
-      if (!descricao) {
-        return res.status(400).json({ erro: "Descrição é obrigatória" });
-      }
-      const novaTarefa = await tarefaModel.create(descricao);
-      res.status(201).json(novaTarefa);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ erro: "Erro ao criar tarefa" });
-    }
-  };
+### 5. **Excluir um curso**
+- **Rota**: `DELETE /courses/:id`
+- **Exemplo de resposta**:
+  ```json
+  {
+    "message": "Curso deletado com sucesso!"
+  }
+  ```
 
-  update = async (req, res) => {
-    const { id } = req.params;
-    const { concluida } = req.body;
+---
 
-    try {
-      const tarefaAtualizada = await tarefaModel.update(
-        parseInt(id),
-        concluida
-      );
+## 🛠 Decisões de Design e Arquitetura
 
-      if (!tarefaAtualizada) {
-        return res.status(404).json({ erro: "Tarefa não encontrada" });
-      }
+1. **Estrutura MVC**:
+   - **Controllers**: Contêm a lógica de negócios e manipulam as requisições/respostas.
+   - **Models**: Responsáveis pela interação com o banco de dados usando o Prisma.
+   - **Routes**: Definem as rotas da API e conectam os endpoints aos controllers.
 
-      res.json(tarefaAtualizada);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ erro: "Erro ao atualizar tarefa" });
-    }
-  };
+2. **Banco de Dados**:
+   - Utilizamos o SQLite para simplicidade no desenvolvimento. O Prisma facilita a migração para outros bancos, como PostgreSQL ou MySQL, se necessário.
 
-  delete = async (req, res) => {
-    const { id } = req.params;
+3. **Validação de Dados**:
+   - Validações básicas são realizadas nos controllers para garantir que os campos obrigatórios sejam fornecidos.
 
-    try {
-      const sucesso = await tarefaModel.delete(parseInt(id));
+4. **ORM Prisma**:
+   - Escolhido pela facilidade de uso, suporte a migrações e integração com TypeScript.
 
-      if (!sucesso) {
-        return res.status(404).json({ erro: "Tarefa não encontrada" });
-      }
+---
 
-      res.status(204).send();
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ erro: "Erro ao excluir tarefa" });
-    }
-  };
+## 🧪 Testando a API
 
-  getById = async (req, res) => {
-    const { id } = req.params;
+Recomenda-se o uso do **Thunder Client**  para testar os endpoints. Certifique-se de que o servidor está em execução antes de enviar as requisições.
 
-    try {
-      const tarefa = await tarefaModel.getById(parseInt(id));
+---
 
-      if (!tarefa) {
-        return res.status(404).json({ erro: "Tarefa não encontrada" });
-      }
+## 📄 Licença
 
-      res.json(tarefa);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ erro: "Erro ao buscar tarefa" });
-    }
-  };
-}
-
-export default new TarefaController();
-```
-
-### 8. Atualizando as rotas
-
-Se quiser implementar a nova rota `getById` no arquivo de rotas:
-
-```javascript
-import express from "express";
-import tarefaController from "../controllers/tarefaController.js";
-const router = express.Router();
-
-router.get("/", tarefaController.getAll);
-router.get("/:id", tarefaController.getById); // Nova rota
-router.post("/", tarefaController.create);
-router.put("/:id", tarefaController.update);
-router.delete("/:id", tarefaController.delete);
-
-export default router;
-```
-
-## Principais Mudanças na Refatoração
-
-1. **Operações Assíncronas**: Todas as operações de banco de dados são assíncronas, utilizando `async/await`
-2. **Tratamento de Erros**: Implementação de blocos try/catch para lidar com exceções do Prisma
-3. **Persistência de Dados**: Os dados agora são armazenados em um banco SQLite em vez de memória
-4. **Tipagem Automática**: O Prisma gera tipos TypeScript automaticamente para os modelos
-
-## Passos Após Git Clone
-
-1. Instale as dependências do projeto:
-
-```bash
-npm install
-```
-
-2. Crie o arquivo `.env` com a variável `DATABASE_URL` apontando para o banco de dados desejado.
-
-```
-DATABASE_URL="file:./dev.db"
-```
-
-3. Execute as migrações:
-
-```bash
-npx prisma migrate dev
-```
+Este projeto é de uso livre para fins educacionais.
