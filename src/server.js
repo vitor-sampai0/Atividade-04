@@ -1,5 +1,5 @@
 import express from "express";
-import tarefaRoutes from "./routes/courseRoutes.js";
+import tarefaRoutes from "./routes/tarefaRoutes.js";
 const app = express();
 const port = 4000;
 app.use(express.json());
