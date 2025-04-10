@@ -1,29 +1,40 @@
 import prisma from "../../prisma/client.js";
 
-class TarefaModel {
+class CourseModel {
   getAll = async () => {
-    return await prisma.task.findMany();
+    return await prisma.course.findMany();
   };
 
-  create = async (descricao) => {
-    return await prisma.task.create({
+  create = async (title, instrument, level, duration, price, instructor, maxStudents) => {
+    return await prisma.course.create({
       data: {
-        descricao,
+      title,
+      instrument,
+      level,
+      duration,
+      price,
+      instructor,
+      maxStudents,
       },
     });
   };
 
-  update = async (id, concluida, descricao) => {
+  update = async (id, title, instrument, level, duration, price, instructor, maxStudents) => {
     try {
-      const tarefa = await prisma.task.update({
+      const course = await prisma.course.update({
         where: { id },
         data: {
-          concluida: concluida !== undefined ? concluida : true,
-          descricao,
+          title,
+          instrument,
+          level,
+          duration,
+          price,
+          instructor,
+          maxStudents,
         },
       });
 
-      return tarefa;
+      return course;
     } catch (error) {
       console.log("Error", error);
       throw error;
@@ -32,15 +43,15 @@ class TarefaModel {
 
   delete = async (id) => {
     try {
-      const tarefaDeletada = await prisma.task.delete({
+      const courseDeletada = await prisma.course.delete({
         where: { id },
       });
 
-      return tarefaDeletada;
+      return courseDeletada;
     } catch (error) {
-      console.log("Erro ao deletar a tarefa!", error);
+      console.log("Erro ao deletar o Curso!", error);
       throw error;
     }
   };
 }
-export default new TarefaModel();
+export default new CourseModel();

@@ -1,4 +1,4 @@
-import courseModel from "../models/tarefaModel.js";
+import courseModel from "../models/courseModel.js";
 
 class CourseController {
   getAll = async (req, res) => {
