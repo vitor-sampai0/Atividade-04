@@ -23,8 +23,8 @@ model Course {
   level       String
   duration    Int     
   price       Float   
-  instructor  String  
-  maxStudents Int     
+  instructor  String?  
+  maxStudents Int? 
   concluida   Boolean @default(false)
   criadaEm    DateTime @default(now())
 

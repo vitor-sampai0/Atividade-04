@@ -30,12 +30,6 @@ class CourseController {
       if (!price) {
         return res.status(400).json({ erro: "O campo 'price' é obrigatório." });
       }
-      if (!instructor) {
-        return res.status(400).json({ erro: "O campo 'instructor' é obrigatório." });
-      }
-      if (!maxStudents) {
-        return res.status(400).json({ erro: "O campo 'maxStudents' é obrigatório." });
-      }
       
 
       const novaCourse = await courseModel.create(title, instrument, level, duration, price, instructor, maxStudents);
